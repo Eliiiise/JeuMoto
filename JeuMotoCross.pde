@@ -174,7 +174,7 @@ int calculate( int returnValue, int baseValue ) {
 
 
 void speed() {
-  if (bvalue==1){//acceleration
+  if (bvalue==1 && niveauEssence>0){//acceleration
     vitesse = vitesse+0.04;
     niveauEssence = niveauEssence-0.5;
   }
@@ -200,8 +200,7 @@ void monteTerrain(int n,int m, int h) {
     int delta = x % 500 ;
     int y = x / 500;
     int u = memoHautNiveau[y]; 
-    println(u);
-    
+
     int monteBloc=220;
     
     monte= delta*monteBloc/500+u*monteBloc;
@@ -235,7 +234,6 @@ void descenteTerrain(int n,int m, int h) {
     int delta = x % 500 ;
     int y = x / 500;
     int u = memoHautNiveau[y]; 
-    println(u);
     
     int monteBloc=220;
     
@@ -274,7 +272,6 @@ void recupPiece() {
   
   for (int n=0 ; n<memoPiece380.length ; n = n+1) {
     if (300 > int(i3)+2100+memoPiece380[n] && 0 < int(i3)+2100+memoPiece380[n] ){
-      println(memoPiece380[n]);
       if (memoHaut<-300) {
         memoPiece380[n]=-2000;
         nbPiece=nbPiece+10;
