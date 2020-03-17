@@ -11,7 +11,6 @@ class Barriere{
     
     i3=int(i3);
     if (i3 % 3000 < -2980 && barriereACT==1) {
-      println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
       float r = random(200,2800);
       memoBarriere = splice(memoBarriere, int(-i3+r) , memoBarriere.length);
       barriereACT=0;

@@ -1,7 +1,5 @@
 class Fond{
   
-  float i4=-500, i5=0;
-  
   
 
   Fond(){   
@@ -9,8 +7,10 @@ class Fond{
   
   void display() {
     
-    i4=i4-0.5*vitesse;
-    i5=i5-1*vitesse;
+    if (play==1) {
+      i4=i4-0.5*vitesse;
+      i5=i5-1*vitesse;
+    }
     
     image(terrain,0,0);
     image(ciel,0,200);

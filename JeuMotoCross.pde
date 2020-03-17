@@ -7,6 +7,8 @@ int bvalue = 0;
 int xvalue = 0;
 float zvalue = 0;
 
+int play = 0;
+
 float memoHaut=-150;
 
 float niveauEssence = 278;
@@ -17,12 +19,15 @@ int taillePiece = 50;
 int tailleTerrainLarg = 500;
 int tailleTerrainHaut = 800;
 
-PImage terrain, player, nuage, nuage2, sol, ciel, coline, coline2, barriere, plat, mont, des, piece, pieceRouge, compteurVitesse, indicateur, essenceUnder, essence;
+PImage terrain, player, nuage, nuage2, sol, ciel, coline, coline2, barriere, plat, mont, des, piece, pieceRouge, compteurVitesse, indicateur, essenceUnder, essence, jaugeEssence, menu, playB, record, cptPiece;
+
+PGraphics mask;
 
 Minim minim;
-AudioPlayer musicFond, musicPiece;
+AudioPlayer musicFond, musicPiece, musicCrash, musicButton, musicDead;
 
 float i3=0;
+float i4=-500, i5=0;
 int x=1;
 int cpt=0;
 
@@ -33,6 +38,9 @@ float monte=0;
 float vitesse=1;
 int solHaut=150;
 int deltaHaut=0;
+int time=0;
+
+int recordPiece=0;
 
 int hauteurSomme=0 ;
 
@@ -61,7 +69,16 @@ void setup() {
     musicFond = minim.loadFile("music-fond.mp3");
     
     minim = new Minim(this);
-    musicPiece = minim.loadFile("music-piece.mp3");
+    musicPiece = minim.loadFile("music-piece.wav");
+    
+     minim = new Minim(this);
+    musicCrash = minim.loadFile("music-crash.mp3");
+    
+    minim = new Minim(this);
+    musicButton = minim.loadFile("music-button.mp3");
+    
+    minim = new Minim(this);
+    musicDead = minim.loadFile("music-dead.mp3");
     
     terrain = loadImage("fond.png");
     terrain.resize(width, height);
@@ -107,16 +124,31 @@ void setup() {
     sol = loadImage("sol.png");
     
     compteurVitesse = loadImage("vitesse.png");
-    compteurVitesse.resize(150,150);
+    compteurVitesse.resize(140,140);
     
     indicateur = loadImage("indicateur.png");
     indicateur.resize(25,70);
     
     essence = loadImage("essence.png");
-    essence.resize(284,40);
+    essence.resize(350,65);
     
     essenceUnder = loadImage("essence-under.png");
-    essenceUnder.resize(350,40);
+    essenceUnder.resize(330,60);
+    
+    jaugeEssence= loadImage("essence-niveau.png");
+    jaugeEssence.resize(290,52);
+    
+    menu = loadImage("menu.png");
+    menu.resize(480,500);
+    
+    cptPiece = loadImage("cpt-piece.png");
+    cptPiece.resize(170,60);
+    
+    playB = loadImage("play.png");
+    playB.resize(150,80);
+    
+    record = loadImage("record.png");
+    record.resize(360,60);
     
 }
 
@@ -126,29 +158,52 @@ void draw() {
     musicFond.rewind();
     musicFond.play();
   }
-
-  i3=i3-20*vitesse;
-  speed(); 
   
   monFond.display(); 
   monNuage.display();
   
-  tableauDeBord();
-  
-  translate(0,int(monte));
+  if ( play==0 ) {
+    time=time+1;
+    image(menu,450,160);
+    image(playB,612,490);
+    image(record,510,370);
+    textSize(28);
+    fill(255);
+    text(recordPiece, 760, 410);
+    if (time>50) {
+      start();
+    }
+  }
 
-  addAleaTab();
-  creaTerrain();
+  if ( play==1 ) {
+    
+    i3=i3-20*vitesse;
+    speed(); 
+    
+    
+    
+    tableauDeBord();
+    
+    translate(0,int(monte));
   
-  maBarriere.display();
-  maPiece.display();
-  
-  translate(0,-monte+deltaHaut);
-  
-  monPlayer.display();
-  
-  collisionBarriere();
-  recupPiece();
+    addAleaTab();
+    creaTerrain();
+    
+    maBarriere.display();
+    maPiece.display();
+    
+    translate(0,-monte+deltaHaut);
+    
+    monPlayer.display();
+    
+    collisionBarriere();
+    recupPiece();
+    
+    if ( niveauEssence<=0 && vitesse<=0 ) {
+      dead();
+    }
+    
+  }
   
   delay(10);
 }
@@ -288,7 +343,11 @@ void collisionBarriere() {
   for (int n=0 ; n<memoBarriere.length ; n = n+1) {
     if (300 > int(i3)+1700+memoBarriere[n] && 0 < int(i3)+1700+memoBarriere[n] ){
       if (memoHaut>-250) {
-        println("Deaddd");
+        if(!musicCrash.isPlaying()){
+          musicCrash.rewind();
+          musicCrash.play();
+        }
+        dead();
       }
     }
   }
@@ -298,20 +357,29 @@ void collisionBarriere() {
 void tableauDeBord() {
   textSize(32);
   fill(255);
+  image(cptPiece, width-250,45);
   text(nbPiece, width-180, 85);
-  image(piece, width-250,50);
-  image(compteurVitesse,60,20);
+  image(compteurVitesse,65,30);
   translate(135,100);
   rotate(radians(vitesse*50-3*40));
   image(indicateur,-12.5,-58);
   
+  
   rotate(radians(-(vitesse*50-3*40)));
   translate(-135,-100);
   
-  image(essenceUnder,450,30);
-  fill(255,0,0);
-  rect(522,34,niveauEssence,30,20);
-  image(essence,517,30);
+  mask = createGraphics(290,52); //size of mask
+  mask.beginDraw();
+  mask.rect(275-niveauEssence, 1, 290-(278-niveauEssence),54,55);
+  mask.endDraw();
+  
+  jaugeEssence.mask(mask);
+  
+  image(essenceUnder,500,50);
+  image(jaugeEssence,-278+niveauEssence+500,56);
+  image(essence,495,50);
+  
+  
 }
 
 
@@ -353,4 +421,44 @@ void creaTerrain() {
     }
     
   }
+}
+
+void start() {
+  if (bvalue==1){//acceleration
+    if(!musicButton.isPlaying()){
+      musicButton.rewind();
+      musicButton.play();
+    }
+    play=1;
+    memoHaut=-150;
+    niveauEssence = 278;
+    i3=0;
+    x=1;
+    cpt=0;
+    nbPiece=0;
+    vitesse=1;
+    i4=-500;
+    i5=0;
+    niveau1 = new int[]{0,0,0,0,0};
+    memoBarriere = new int[]{};
+    memoPiece = new int[]{};
+    memoPiece290 = new int[]{};
+    memoPiece380 = new int[]{};
+  }
+}
+
+void recordRefresh() {
+  if (nbPiece>recordPiece) {
+    recordPiece=nbPiece;
+  }
+}
+
+void dead() {
+  if(!musicDead.isPlaying()){
+    musicDead.rewind();
+    musicDead.play();
+  }
+  recordRefresh();
+  play=0;
+  time=0; 
 }

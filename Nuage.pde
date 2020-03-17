@@ -1,5 +1,6 @@
 
 class Nuage{
+  
   float i=1400, i2=400;
 
   Nuage(){
