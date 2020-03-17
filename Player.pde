@@ -1,40 +1,42 @@
-
 class Player{
   int x;
   int y;
   color couleur;
   float cabrage=0, memoCab=0;
   float m,n;
-  float gravit=10, memoHaut=-150, memoGravit=5, gravitCab;
+  float gravit=20, memoGravit=5, gravitCab;
   float memoZ=0, memoX=0;
   float saut=0;
   int memoSolHaut=-150;
-  int vitesseMemo=1;
+  float vitesseMemo=1;
+  float memoPente=0;
 
   Player(){
       
   }
 
-  void display(){
+  void display() {
+     
     if (memoCab==0){
       m=-100;
       n=0;
     }
-    if (memoCab<0){
+    
+    if (memoCab<0) {
       m=-30;
       n=-70;
     }
-    if (memoCab>0){
+    
+    if (memoCab>0) {
       m=-170;
       n=70;
     }
       
-    saut = saut - gravit;
+    saut = saut - gravit/2;
     memoHaut=memoHaut+gravit - saut;
-    /*print("]                  memoHaut[");
-      print(memoHaut);
-      print("]  -solHaut[");
-      print(-solHaut);*/
+
+      
+    
     if (memoHaut>=-solHaut){
       memoHaut=-solHaut;
     }
@@ -43,20 +45,31 @@ class Player{
       gravit=5;
     }
     
-    if (memoZ-zvalue>5 && saut<-100){
-      saut=5*(memoZ-zvalue);
-      if (saut>80) {
-        saut=80;
+    if (memoZ-zvalue>2 && saut<-100){
+      saut=15*(memoZ-zvalue);
+      if (saut>50) {
+        saut=50;
       }
     }
     memoZ=zvalue;
-    rotate(radians(pente));
-    if (pente==-20){
-       translate(-272, 138);//emplacement - moitier de la taille du player
+    
+    if (pente==-20 && memoPente>-20) {
+      memoPente=memoPente-7;
     }
-    if (pente==20){
-       translate(210, -210);//emplacement - moitier de la taille du player
+    
+    if (pente==20 && memoPente<20) {
+      memoPente=memoPente+7;
     }
+    
+    if (pente==0 && memoPente<0) {
+      memoPente=memoPente+7;
+    }
+    
+    if (pente==0 && memoPente>0) {
+      memoPente=memoPente-7;
+    }
+    
+    
     translate(500+n, 850+memoHaut);//emplacement - moitier de la taille du player
     
     if (vitesse==2){
@@ -64,8 +77,7 @@ class Player{
       gravitCab=gravit/10;
     }
     if (vitesseMemo-vitesse==-1){
-       
-       print("BBB   ");
+
     }
     vitesseMemo=vitesse;
     
@@ -96,12 +108,14 @@ class Player{
       memoCab=0;
       cabrage=0;
       gravitCab=0;
-      print("STOPP       ");
     }
     
+    
     rotate(radians(memoCab));
-    image(player,m,-200);//moitier de la taille du player
-    //circle(0,0,10);
+    rotate(radians(memoPente));
+    
+    image(player,m,-200);
+    
   }
  
 }
